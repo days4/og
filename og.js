@@ -49,4 +49,58 @@ function og_user_groups(uid, options) {
   }
   catch (error) { console.log('og_user_groups - ' + error); }
 }
-
+/**
+ * Services og_user_join
+ */
+ 
+function og_user_groups_join(options) {
+  try {
+      options.method = 'POST';
+    options.path = 'og/join.json';
+     options.service = 'join';
+    options.resource = 'og';
+    console.log('join');
+    Drupal.services.call(options);
+  }
+  catch (error) { console.log('og_user_groups_join - ' + error); }
+  }
+  /**
+   * hook_field_formatter_view
+   * for og_subscribe_link
+   */
+   
+ function og_ui_field_formatter_view(entity_type, entity, field, instance, langcode, items, display) 
+  {
+  //dpm(entity);
+     try {
+    var element = {};
+    var user_id=Drupal.user.uid;
+        var entity_id=entity.vid;
+// args for join
+    $.each(items, function(delta, item) {
+    var join_leave={uid:user_id,gid:entity_id};
+      var joinargs={
+                           data:JSON.stringify(join_leave),
+                      success:function(result){
+                     // console.log(result);
+                      if(result.id)
+                      {
+                      alert('You Succesfully Subscribed this Group');}
+                      else if(result=='Already Subscribed'){
+                      alert(result);
+                      }
+                  }
+         };
+        var title = item.title ? item.title : item.url
+       // console.log('title is::::'+title);
+        element[delta] = {
+          markup: theme(
+            'button',
+            { text: 'Subscribe', attributes:{onclick:og_user_groups_join(joinargs)}}
+          )
+        };
+    });
+    return element;
+  }
+  catch (error) { console.log('og_ui_field_formatter_view - ' + error); }
+}
